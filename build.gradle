@@ -1,45 +1,32 @@
-buildscript {
-  repositories {
-    jcenter()
-  }
-}
-
-plugins {
-  id "com.github.sherter.google-java-format" version "0.8"
-}
-
 allprojects {
+  version = "0.1.1"
+  group = 'com.TonyTangAndroid.jvm'
   repositories {
-    jcenter()
-  }
-}
-
-subprojects { project ->
-  project.tasks.withType(JavaCompile) {
-    dependsOn(installGitHooks)
-  }
-
-  repositories {
-    jcenter()
+    mavenCentral()
     google()
   }
-
 }
+subprojects {
+  apply plugin: 'java'
+  apply plugin: 'maven-publish'
 
-googleJavaFormat {
-  toolVersion = "1.7"
-}
+  sourceCompatibility = 1.8 // java 8
+  targetCompatibility = 1.8
 
-////////////////////////////////////////////////////////////////////////
-//
-//  Google Java Format pre-commit hook installation
-////////////////////////////////////////////////////////////////////////
-
-
-tasks.register('installGitHooks', Copy) {
-  from(file('config/hooks/pre-commit-stub')) {
-    rename 'pre-commit-stub', 'pre-commit'
+  java {
+    withSourcesJar()
+    withJavadocJar()
   }
-  into file('.git/hooks')
-  fileMode 0777
+
+  publishing {
+    publications {
+      maven(MavenPublication) {
+        groupId project.group
+        artifactId project.name
+        version project.version
+        from components.java
+      }
+    }
+  }
 }
+
